@@ -1,11 +1,17 @@
+const bcrypt = require('bcryptjs');
+
+const jwt = require('jsonwebtoken');
+
+const { NODE_ENV, JWT_SECRET } = process.env;
+
 const User = require('../models/user');
 
 const BadRequestError = require('../Errors/BadRequestError');
 const NotFoundError = require('../Errors/NotFoundError');
+const ConflictError = require('../Errors/ConflictError');
 
 const getUserInfo = (req, res, next) => {
   const { _id } = req.user;
-  // То-ли id, то-ли _id
   User.findById(_id)
     .orFail(() => {
       throw new NotFoundError('Пользователь не найден');
@@ -34,26 +40,63 @@ const updateUserInfo = (req, res, next) => {
     })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.code === 11000) {
+        next(new ConflictError('Пользователь с таким Email уже существует'));
+      } else if (err.name === 'ValidationError') {
         next(new BadRequestError(`Введены некорректные данные: ${err.message}`));
       } else next(err);
     });
 };
 
-const createUser = () => {
-
+const createUser = (req, res, next) => {
+  const { email, password, name } = req.body;
+  bcrypt.hash(password, 10)
+    .then((hash) => {
+      User.create({
+        email, password: hash, name,
+      })
+        .then((user) => res.status(201).send({
+          user: {
+            name: user.name,
+            email: user.email,
+            _id: user._id,
+          },
+        }))
+        .catch((err) => {
+          if (err.code === 11000) {
+            next(new ConflictError('Пользователь с таким Email уже существует'));
+          } else if (err.name === 'ValidationError') {
+            next(new BadRequestError(`Введены некорректные данные: ${err.message}`));
+          } else next(err);
+        });
+    });
 };
 
-const login = () => {
-
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+  User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+        { expiresIn: '7d' },
+      );
+      res.cookie('jwtForAutorization', token, {
+        secure: NODE_ENV === 'production',
+        maxAge: 604800000,
+        httpOnly: true,
+        sameSite: false,
+      });
+      res.send({ message: 'Вход выполнен успешно!' });
+    })
+    .catch(next);
 };
 
 const lognout = (req, res) => {
   try {
     res.clearCookie('jwtForAutorization');
   } catch (err) {
-  // Выбрать ошибку
-    throw new Error('Невозможно удалить cookie');
+    throw new NotFoundError('Невозможно удалить cookie');
   }
 
   res.send({ message: 'cookie удалены' });

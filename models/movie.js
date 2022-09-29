@@ -22,16 +22,12 @@ const movieSchema = new Schema({
   description: {
     type: String,
     required: true,
-    validate: {
-      validator: (props) => validator.isUrl(props),
-      message: 'Неправильный формат ссылки',
-    },
   },
   image: {
     type: String,
     required: true,
     validate: {
-      validator: (props) => validator.isUrl(props),
+      validator: (props) => validator.isURL(props, { protocols: ['http', 'https', 'ftp'], require_tld: true, require_protocol: true }),
       message: 'Неправильный формат ссылки',
     },
   },
@@ -39,7 +35,7 @@ const movieSchema = new Schema({
     type: String,
     required: true,
     validate: {
-      validator: (props) => validator.isUrl(props),
+      validator: (props) => validator.isURL(props, { protocols: ['http', 'https', 'ftp'], require_tld: true, require_protocol: true }),
       message: 'Неправильный формат ссылки',
     },
   },
@@ -47,7 +43,7 @@ const movieSchema = new Schema({
     type: String,
     required: true,
     validate: {
-      validator: (props) => validator.isUrl(props),
+      validator: (props) => validator.isURL(props, { protocols: ['http', 'https', 'ftp'], require_tld: true, require_protocol: true }),
       message: 'Неправильный формат ссылки',
     },
   },
@@ -68,6 +64,6 @@ const movieSchema = new Schema({
     type: String,
     required: true,
   },
-});
+}, { versionKey: false });
 
 module.exports = model('movie', movieSchema);

@@ -12,5 +12,5 @@
 * Pm2
 * YandexCloud (VMS)
 
-1. [Ссылка на бэкенд](https://)
-2. [Публичный IP-адрес](https://)
+1. [Ссылка на бэкенд](https://api.diploma-nazarov.nomoredomains.icu)
+2. [Публичный IP-адрес](https://158.160.2.236)

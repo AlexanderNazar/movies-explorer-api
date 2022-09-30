@@ -12,7 +12,9 @@ const { NODE_ENV, DB_ADRESS } = process.env;
 
 const cookieParser = require('cookie-parser');
 
-const { celebrate, Joi, errors } = require('celebrate');
+const { errors } = require('celebrate');
+
+const { signupValidate, signinValidate } = require('./middlewares/validate');
 
 const limiter = require('./middlewares/rateLimiter');
 
@@ -52,20 +54,9 @@ app.use(cookieParser());
 
 app.use(requestLogger);
 
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-    name: Joi.string().required().min(2).max(30),
-  }),
-}), createUser);
+app.post('/signup', signupValidate, createUser);
 
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-  }),
-}), login);
+app.post('/signin', signinValidate, login);
 
 app.use(auth);
 

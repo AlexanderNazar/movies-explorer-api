@@ -14,17 +14,11 @@ const cookieParser = require('cookie-parser');
 
 const { errors } = require('celebrate');
 
-const { signupValidate, signinValidate } = require('./middlewares/validate');
-
 const limiter = require('./middlewares/rateLimiter');
 
 const cors = require('./middlewares/cors');
 
 const handleError = require('./middlewares/handleError');
-
-const { createUser, login, lognout } = require('./controllers/users');
-
-const auth = require('./middlewares/auth');
 
 const NotFoundError = require('./Errors/NotFoundError');
 
@@ -44,6 +38,8 @@ app.use(cors);
 
 app.use(helmet());
 
+app.use(requestLogger);
+
 app.use(limiter);
 
 app.use(express.json());
@@ -52,17 +48,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());
 
-app.use(requestLogger);
-
-app.post('/signup', signupValidate, createUser);
-
-app.post('/signin', signinValidate, login);
-
-app.use(auth);
-
-app.use('/signout', lognout);
-
-app.use('/', routes);
+app.use(routes);
 
 app.use('*', (req, res, next) => {
   next(new NotFoundError('Страница не найдена'));

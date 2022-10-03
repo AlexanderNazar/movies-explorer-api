@@ -53,7 +53,7 @@ const movieSchema = new Schema({
     ref: 'user',
   },
   movieId: {
-    type: Schema.Types.ObjectId,
+    type: Number,
     required: true,
   },
   nameRU: {

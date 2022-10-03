@@ -1,5 +1,7 @@
 const { celebrate, Joi } = require('celebrate');
 
+const validator = require('validator');
+
 const signupValidate = celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
@@ -29,10 +31,25 @@ const creatMovieValidate = celebrate({
     duration: Joi.number().required(),
     year: Joi.string().required(),
     description: Joi.string().required(),
-    image: Joi.string().required().uri(),
-    trailerLink: Joi.string().required().uri(),
-    thumbnail: Joi.string().required().uri(),
-    movieId: Joi.string().hex().length(24),
+    image: Joi.string().required().custom((value, halpers) => {
+      if (validator.isURL(value)) {
+        return value;
+      }
+      return halpers.message('Поле image должно быть Url');
+    }),
+    trailerLink: Joi.string().required().custom((value, halpers) => {
+      if (validator.isURL(value)) {
+        return value;
+      }
+      return halpers.message('Поле trailerLink должно быть Url');
+    }),
+    thumbnail: Joi.string().required().custom((value, halpers) => {
+      if (validator.isURL(value)) {
+        return value;
+      }
+      return halpers.message('Поле thumbnail должно быть Url');
+    }),
+    movieId: Joi.number().required(),
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
   }),

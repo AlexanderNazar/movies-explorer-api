@@ -6,7 +6,6 @@ const ForbiddenError = require('../Errors/ForbiddenError');
 
 const getAllSavedMovies = (req, res, next) => {
   Movie.find({})
-    .populate('owner')
     .then((movies) => res.send({ data: movies }))
     .catch(next);
 };

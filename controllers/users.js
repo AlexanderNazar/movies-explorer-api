@@ -98,7 +98,6 @@ const lognout = (req, res) => {
   } catch (err) {
     throw new NotFoundError('Невозможно удалить cookie');
   }
-
   res.send({ message: 'cookie удалены' });
 };
 

@@ -57,7 +57,7 @@ const deleteMovie = (req, res, next) => {
       if (req.user._id !== movie.owner.toString()) {
         throw new ForbiddenError('Попытка удалить фильм, созданный другим пользователем');
       } Movie.findByIdAndRemove(_id)
-        .then((m) => res.send({ message: `Фильм ${m.nameRU} удален из Вашего списка!` }))
+        .then((mov) => res.send({ data: mov }))
         .catch(next);
     })
     .catch((err) => {
